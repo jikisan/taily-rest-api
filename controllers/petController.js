@@ -91,3 +91,28 @@ exports.deletePet = async (req, res, next) => {
   }
 };
 
+// Add a schedule to a pet's passport
+exports.addScheduleToPassport = async (req, res, next) => {
+  try {
+    const petId = req.params.id;
+    const schedule = req.body;
+    const pet = await Pet.findByIdAndUpdate(
+      petId,
+      { $push: { 'passport.schedules': schedule } },
+      { new: true, runValidators: true }
+    );
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+    res.status(201).json(pet);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        details: Object.values(err.errors).map(e => e.message) 
+      });
+    }
+    next(err);
+  }
+};
+

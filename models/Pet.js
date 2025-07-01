@@ -1,5 +1,23 @@
 const mongoose = require('mongoose');
 
+const scheduleSchema = new mongoose.Schema({
+  vaccineType: { type: String, required: true },
+  hospital: { type: String },
+  schedDateTime: { type: Date, required: true },
+  notes: { type: String },
+  given: {
+    isGiven: { type: Boolean, default: false },
+    type: { type: String },
+    dateTime: { type: Date },
+    proofPhoto: { type: String }
+  },
+  weight: {
+    value: { type: Number },
+    unit: { type: String, enum: ['kg', 'lbs', 'g', 'oz'] }
+  },
+  vet: { type: String }
+});
+
 const petSchema = new mongoose.Schema({
   name: { type: String, required: true },
   photoUrl: { type: String },
@@ -25,7 +43,10 @@ const petSchema = new mongoose.Schema({
     petId: { type: String },
     idName: { type: String },
     idUrl: { type: String }
-  }]
+  }],
+  passport: {
+    schedules: [scheduleSchema]
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Pet', petSchema);
