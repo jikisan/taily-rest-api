@@ -116,3 +116,118 @@ exports.addScheduleToPassport = async (req, res, next) => {
   }
 };
 
+// Add a petCare record
+exports.addPetCare = async (req, res, next) => {
+  try {
+    const petId = req.params.id;
+    const care = req.body;
+    const pet = await Pet.findByIdAndUpdate(
+      petId,
+      { $push: { petCare: care } },
+      { new: true, runValidators: true }
+    );
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+    res.status(201).json(pet);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        details: Object.values(err.errors).map(e => e.message) 
+      });
+    }
+    next(err);
+  }
+};
+
+// Update a petCare record
+exports.updatePetCare = async (req, res, next) => {
+  try {
+    const petId = req.params.id;
+    const careId = req.params.careId;
+    const update = req.body;
+    const pet = await Pet.findOneAndUpdate(
+      { _id: petId, 'petCare._id': careId },
+      { $set: { 'petCare.$': update } },
+      { new: true, runValidators: true }
+    );
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet or care record not found' });
+    }
+    res.json(pet);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        details: Object.values(err.errors).map(e => e.message) 
+      });
+    }
+    next(err);
+  }
+};
+
+// Delete a petCare record
+exports.deletePetCare = async (req, res, next) => {
+  try {
+    const petId = req.params.id;
+    const careId = req.params.careId;
+    const pet = await Pet.findByIdAndUpdate(
+      petId,
+      { $pull: { petCare: { _id: careId } } },
+      { new: true }
+    );
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet or care record not found' });
+    }
+    res.json(pet);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Update a schedule in a pet's passport
+exports.updateScheduleInPassport = async (req, res, next) => {
+  try {
+    const petId = req.params.id;
+    const scheduleId = req.params.scheduleId;
+    const update = req.body;
+    const pet = await Pet.findOneAndUpdate(
+      { _id: petId, 'passport.schedules._id': scheduleId },
+      { $set: { 'passport.schedules.$': update } },
+      { new: true, runValidators: true }
+    );
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet or schedule not found' });
+    }
+    res.json(pet);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        details: Object.values(err.errors).map(e => e.message) 
+      });
+    }
+    next(err);
+  }
+};
+
+// Delete a schedule from a pet's passport
+exports.deleteScheduleInPassport = async (req, res, next) => {
+  try {
+    const petId = req.params.id;
+    const scheduleId = req.params.scheduleId;
+    const pet = await Pet.findByIdAndUpdate(
+      petId,
+      { $pull: { 'passport.schedules': { _id: scheduleId } } },
+      { new: true }
+    );
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet or schedule not found' });
+    }
+    res.json(pet);
+  } catch (err) {
+    next(err);
+  }
+};
+
