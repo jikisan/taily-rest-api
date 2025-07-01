@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const {
+  addPetId,
+  updatePetId,
+  deletePetId,
   getPets,
   getPetById,
   addPet,
@@ -11,7 +14,10 @@ const {
   updatePetCare,
   deletePetCare,
   updateScheduleInPassport,
-  deleteScheduleInPassport
+  deleteScheduleInPassport,
+  addMedicalRecord,
+  updateMedicalRecord,
+  deleteMedicalRecord
 } = require('../controllers/petController');
 
 router.get('/', getPets);
@@ -29,5 +35,15 @@ router.delete('/:id/passport/schedules/:scheduleId', deleteScheduleInPassport);
 router.post('/:id/petCare', addPetCare);
 router.put('/:id/petCare/:careId', updatePetCare);
 router.delete('/:id/petCare/:careId', deletePetCare);
+
+// MedicalRecords endpoints
+router.post('/:id/medicalRecords', addMedicalRecord);
+router.put('/:id/medicalRecords/:recordId', updateMedicalRecord);
+router.delete('/:id/medicalRecords/:recordId', deleteMedicalRecord);
+
+// PetIds endpoints
+router.post('/:id/petIds', addPetId);
+router.put('/:id/petIds/:petIdRecordId', updatePetId);
+router.delete('/:id/petIds/:petIdRecordId', deletePetId);
 
 module.exports = router;

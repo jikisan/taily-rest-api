@@ -35,6 +35,26 @@ const groomingSchema = new mongoose.Schema({
   groomer: { type: String }
 });
 
+const medicalSchema = new mongoose.Schema({
+  medicalType: { type: String, required: true },
+  clinic: { type: String },
+  medicalDateTime: { type: Date, required: true },
+  diagnosis: { type: String },
+  prescription: { type: String },
+  symptoms: { type: String },
+  notes: { type: String },
+  completion: {
+    isComplete: { type: Boolean, default: false },
+    dateTime: { type: Date },
+    referencePhoto: { type: String }
+  },
+  weight: {
+    value: { type: Number },
+    unit: { type: String, enum: ['kg', 'lbs', 'g', 'oz'] }
+  },
+  vet: { type: String }
+});
+
 const petSchema = new mongoose.Schema({
   name: { type: String, required: true },
   photoUrl: { type: String },
@@ -64,7 +84,8 @@ const petSchema = new mongoose.Schema({
   passport: {
     schedules: [scheduleSchema]
   },
-  petCare: [groomingSchema]
+  petCare: [groomingSchema],
+  medicalRecords: [medicalSchema]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Pet', petSchema);

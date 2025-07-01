@@ -172,15 +172,20 @@ exports.deletePetCare = async (req, res, next) => {
   try {
     const petId = req.params.id;
     const careId = req.params.careId;
-    const pet = await Pet.findByIdAndUpdate(
+    const pet = await Pet.findById(petId);
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+    const careExists = pet.petCare.id(careId);
+    if (!careExists) {
+      return res.status(404).json({ message: 'Care record not found' });
+    }
+    const updatedPet = await Pet.findByIdAndUpdate(
       petId,
       { $pull: { petCare: { _id: careId } } },
       { new: true }
     );
-    if (!pet) {
-      return res.status(404).json({ message: 'Pet or care record not found' });
-    }
-    res.json(pet);
+    res.json(updatedPet);
   } catch (err) {
     next(err);
   }
@@ -217,15 +222,172 @@ exports.deleteScheduleInPassport = async (req, res, next) => {
   try {
     const petId = req.params.id;
     const scheduleId = req.params.scheduleId;
-    const pet = await Pet.findByIdAndUpdate(
+    // First, check if the pet and schedule exist
+    const pet = await Pet.findById(petId);
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+    const scheduleExists = pet.passport.schedules.id(scheduleId);
+    if (!scheduleExists) {
+      return res.status(404).json({ message: 'Schedule not found' });
+    }
+    // Now perform the removal
+    const updatedPet = await Pet.findByIdAndUpdate(
       petId,
       { $pull: { 'passport.schedules': { _id: scheduleId } } },
       { new: true }
     );
+    res.json(updatedPet);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Add a medical record
+exports.addMedicalRecord = async (req, res, next) => {
+  try {
+    const petId = req.params.id;
+    const record = req.body;
+    const pet = await Pet.findByIdAndUpdate(
+      petId,
+      { $push: { medicalRecords: record } },
+      { new: true, runValidators: true }
+    );
     if (!pet) {
-      return res.status(404).json({ message: 'Pet or schedule not found' });
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+    res.status(201).json(pet);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        details: Object.values(err.errors).map(e => e.message) 
+      });
+    }
+    next(err);
+  }
+};
+
+// Update a medical record
+exports.updateMedicalRecord = async (req, res, next) => {
+  try {
+    const petId = req.params.id;
+    const recordId = req.params.recordId;
+    const update = req.body;
+    const pet = await Pet.findOneAndUpdate(
+      { _id: petId, 'medicalRecords._id': recordId },
+      { $set: { 'medicalRecords.$': update } },
+      { new: true, runValidators: true }
+    );
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet or medical record not found' });
     }
     res.json(pet);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        details: Object.values(err.errors).map(e => e.message) 
+      });
+    }
+    next(err);
+  }
+};
+
+// Delete a medical record
+exports.deleteMedicalRecord = async (req, res, next) => {
+  try {
+    const petId = req.params.id;
+    const recordId = req.params.recordId;
+    const pet = await Pet.findById(petId);
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+    const recordExists = pet.medicalRecords.id(recordId);
+    if (!recordExists) {
+      return res.status(404).json({ message: 'Medical record not found' });
+    }
+    const updatedPet = await Pet.findByIdAndUpdate(
+      petId,
+      { $pull: { medicalRecords: { _id: recordId } } },
+      { new: true }
+    );
+    res.json(updatedPet);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Add a petId record
+exports.addPetId = async (req, res, next) => {
+  try {
+    const petId = req.params.id;
+    const idRecord = req.body;
+    const pet = await Pet.findByIdAndUpdate(
+      petId,
+      { $push: { petIds: idRecord } },
+      { new: true, runValidators: true }
+    );
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+    res.status(201).json(pet);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        details: Object.values(err.errors).map(e => e.message) 
+      });
+    }
+    next(err);
+  }
+};
+
+// Update a petId record
+exports.updatePetId = async (req, res, next) => {
+  try {
+    const petId = req.params.id;
+    const idRecordId = req.params.petIdRecordId;
+    const update = req.body;
+    const pet = await Pet.findOneAndUpdate(
+      { _id: petId, 'petIds._id': idRecordId },
+      { $set: { 'petIds.$': update } },
+      { new: true, runValidators: true }
+    );
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet or petId record not found' });
+    }
+    res.json(pet);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        details: Object.values(err.errors).map(e => e.message) 
+      });
+    }
+    next(err);
+  }
+};
+
+// Delete a petId record
+exports.deletePetId = async (req, res, next) => {
+  try {
+    const petId = req.params.id;
+    const idRecordId = req.params.petIdRecordId;
+    const pet = await Pet.findById(petId);
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+    const idExists = pet.petIds.id(idRecordId);
+    if (!idExists) {
+      return res.status(404).json({ message: 'Pet ID record not found' });
+    }
+    const updatedPet = await Pet.findByIdAndUpdate(
+      petId,
+      { $pull: { petIds: { _id: idRecordId } } },
+      { new: true }
+    );
+    res.json(updatedPet);
   } catch (err) {
     next(err);
   }
