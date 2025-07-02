@@ -1,5 +1,60 @@
 const mongoose = require('mongoose');
 
+const scheduleSchema = new mongoose.Schema({
+  vaccineType: { type: String, required: true },
+  hospital: { type: String },
+  schedDateTime: { type: Date, required: true },
+  notes: { type: String },
+  given: {
+    isGiven: { type: Boolean, default: false },
+    type: { type: String },
+    dateTime: { type: Date },
+    proofPhoto: { type: String }
+  },
+  weight: {
+    value: { type: Number },
+    unit: { type: String, enum: ['kg', 'lbs', 'g', 'oz'] }
+  },
+  vet: { type: String }
+});
+
+const groomingSchema = new mongoose.Schema({
+  careType: { type: String, required: true },
+  clinic: { type: String },
+  groomingDateTime: { type: Date, required: true },
+  notes: { type: String },
+  groomed: {
+    isGroomed: { type: Boolean, default: false },
+    groomedDateTime: { type: Date },
+    referencePhoto: { type: String }
+  },
+  weight: {
+    value: { type: Number },
+    unit: { type: String, enum: ['kg', 'lbs', 'g', 'oz'] }
+  },
+  groomer: { type: String }
+});
+
+const medicalSchema = new mongoose.Schema({
+  medicalType: { type: String, required: true },
+  clinic: { type: String },
+  medicalDateTime: { type: Date, required: true },
+  diagnosis: { type: String },
+  prescription: { type: String },
+  symptoms: { type: String },
+  notes: { type: String },
+  completion: {
+    isComplete: { type: Boolean, default: false },
+    dateTime: { type: Date },
+    referencePhoto: { type: String }
+  },
+  weight: {
+    value: { type: Number },
+    unit: { type: String, enum: ['kg', 'lbs', 'g', 'oz'] }
+  },
+  vet: { type: String }
+});
+
 const petSchema = new mongoose.Schema({
   name: { type: String, required: true },
   photoUrl: { type: String },
@@ -25,7 +80,12 @@ const petSchema = new mongoose.Schema({
     petId: { type: String },
     idName: { type: String },
     idUrl: { type: String }
-  }]
+  }],
+  passport: {
+    schedules: [scheduleSchema]
+  },
+  petCare: [groomingSchema],
+  medicalRecords: [medicalSchema]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Pet', petSchema);
