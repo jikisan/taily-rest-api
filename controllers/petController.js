@@ -11,6 +11,22 @@ exports.getPets = async (req, res, next) => {
   }
 };
 
+// @desc Get all pets by user ID
+exports.getPetsByUserId = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+    
+    const pets = await Pet.find({ ownerId: userId }).populate('ownerId', 'name email');
+    res.json(pets);
+  } catch (err) {
+    next(err);
+  }
+};
+
 // @desc Get pet by ID
 exports.getPetById = async (req, res, next) => {
   try {
