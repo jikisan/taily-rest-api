@@ -57,7 +57,10 @@ const medicalSchema = new mongoose.Schema({
 
 const petSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  photoUrl: { type: String },
+  photo: {
+    name: { type: String },
+    url: { type: String }
+  },
   gender: { type: String, enum: ['Male', 'Female'], required: true },
   dateOfBirth: { type: Date },
   petType: { type: String, required: true },
