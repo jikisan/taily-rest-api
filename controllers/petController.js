@@ -101,7 +101,9 @@ exports.deletePet = async (req, res, next) => {
     if (!pet) {
       return res.status(404).json({ message: 'Pet not found' });
     }
-    res.json({ message: 'Pet deleted successfully', pet });
+    // Populate ownerId for consistency
+    const populatedPet = await Pet.populate(pet, { path: 'ownerId', select: 'name email' });
+    res.json({ message: 'Pet deleted successfully', pet: populatedPet });
   } catch (err) {
     next(err);
   }
