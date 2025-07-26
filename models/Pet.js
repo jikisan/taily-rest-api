@@ -9,7 +9,10 @@ const scheduleSchema = new mongoose.Schema({
     isGiven: { type: Boolean, default: false },
     type: { type: String },
     dateTime: { type: Date },
-    proofPhoto: { type: String }
+    proofPhoto: {
+      name: { type: String },
+      url: { type: String }
+    }
   },
   weight: {
     value: { type: Number },
@@ -26,7 +29,10 @@ const groomingSchema = new mongoose.Schema({
   groomed: {
     isGroomed: { type: Boolean, default: false },
     groomedDateTime: { type: Date },
-    referencePhoto: { type: String }
+    referencePhoto: {
+      name: { type: String },
+      url: { type: String }
+    }
   },
   weight: {
     value: { type: Number },
@@ -46,7 +52,10 @@ const medicalSchema = new mongoose.Schema({
   completion: {
     isComplete: { type: Boolean, default: false },
     dateTime: { type: Date },
-    referencePhoto: { type: String }
+    referencePhoto: {
+      name: { type: String },
+      url: { type: String }
+    }
   },
   weight: {
     value: { type: Number },
