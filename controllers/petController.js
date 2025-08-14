@@ -149,15 +149,22 @@ exports.addPetCare = async (req, res, next) => {
   try {
     const petId = req.params.id;
     const care = req.body;
-    const pet = await Pet.findByIdAndUpdate(
-      petId,
-      { $push: { petCare: care } },
-      { new: true, runValidators: true }
-    );
+    const pet = await Pet.findById(petId);
     if (!pet) {
       return res.status(404).json({ message: 'Pet not found' });
     }
-    res.status(201).json(pet);
+
+    // Ensure petCare array exists
+    if (!Array.isArray(pet.petCare)) {
+      pet.petCare = [];
+    }
+
+    // Push via document API so Mongoose applies defaults and generates _id
+    pet.petCare.push(care);
+    await pet.save();
+
+    const addedCare = pet.petCare[pet.petCare.length - 1];
+    res.status(201).json(addedCare);
   } catch (err) {
     if (err.name === 'ValidationError') {
       return res.status(400).json({ 
@@ -276,15 +283,22 @@ exports.addMedicalRecord = async (req, res, next) => {
   try {
     const petId = req.params.id;
     const record = req.body;
-    const pet = await Pet.findByIdAndUpdate(
-      petId,
-      { $push: { medicalRecords: record } },
-      { new: true, runValidators: true }
-    );
+    const pet = await Pet.findById(petId);
     if (!pet) {
       return res.status(404).json({ message: 'Pet not found' });
     }
-    res.status(201).json(pet);
+
+    // Ensure medicalRecords array exists
+    if (!Array.isArray(pet.medicalRecords)) {
+      pet.medicalRecords = [];
+    }
+
+    // Push via document API so Mongoose applies defaults and generates _id
+    pet.medicalRecords.push(record);
+    await pet.save();
+
+    const addedRecord = pet.medicalRecords[pet.medicalRecords.length - 1];
+    res.status(201).json(addedRecord);
   } catch (err) {
     if (err.name === 'ValidationError') {
       return res.status(400).json({ 
