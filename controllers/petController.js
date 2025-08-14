@@ -114,15 +114,25 @@ exports.addScheduleToPassport = async (req, res, next) => {
   try {
     const petId = req.params.id;
     const schedule = req.body;
-    const pet = await Pet.findByIdAndUpdate(
-      petId,
-      { $push: { 'passport.schedules': schedule } },
-      { new: true, runValidators: true }
-    );
+    const pet = await Pet.findById(petId);
     if (!pet) {
       return res.status(404).json({ message: 'Pet not found' });
     }
-    res.status(201).json(pet);
+
+    // Ensure passport and schedules array exist
+    if (!pet.passport) {
+      pet.passport = { schedules: [] };
+    }
+    if (!Array.isArray(pet.passport.schedules)) {
+      pet.passport.schedules = [];
+    }
+
+    // Push via document API so Mongoose applies defaults and generates _id
+    pet.passport.schedules.push(schedule);
+    await pet.save();
+
+    const addedSchedule = pet.passport.schedules[pet.passport.schedules.length - 1];
+    res.status(201).json(addedSchedule);
   } catch (err) {
     if (err.name === 'ValidationError') {
       return res.status(400).json({ 
