@@ -215,12 +215,14 @@ exports.deletePetCare = async (req, res, next) => {
     if (!careExists) {
       return res.status(404).json({ message: 'Care record not found' });
     }
-    const updatedPet = await Pet.findByIdAndUpdate(
+    await Pet.findByIdAndUpdate(
       petId,
-      { $pull: { petCare: { _id: careId } } },
-      { new: true }
+      { $pull: { petCare: { _id: careId } } }
     );
-    res.json(updatedPet);
+    res.json({
+      deletedId: careId,
+      message: 'Pet care record deleted successfully'
+    });
   } catch (err) {
     next(err);
   }
@@ -267,12 +269,14 @@ exports.deleteScheduleInPassport = async (req, res, next) => {
       return res.status(404).json({ message: 'Schedule not found' });
     }
     // Now perform the removal
-    const updatedPet = await Pet.findByIdAndUpdate(
+    await Pet.findByIdAndUpdate(
       petId,
-      { $pull: { 'passport.schedules': { _id: scheduleId } } },
-      { new: true }
+      { $pull: { 'passport.schedules': { _id: scheduleId } } }
     );
-    res.json(updatedPet);
+    res.json({
+      deletedId: scheduleId,
+      message: 'Schedule deleted successfully'
+    });
   } catch (err) {
     next(err);
   }
@@ -349,12 +353,14 @@ exports.deleteMedicalRecord = async (req, res, next) => {
     if (!recordExists) {
       return res.status(404).json({ message: 'Medical record not found' });
     }
-    const updatedPet = await Pet.findByIdAndUpdate(
+    await Pet.findByIdAndUpdate(
       petId,
-      { $pull: { medicalRecords: { _id: recordId } } },
-      { new: true }
+      { $pull: { medicalRecords: { _id: recordId } } }
     );
-    res.json(updatedPet);
+    res.json({
+      deletedId: recordId,
+      message: 'Medical record deleted successfully'
+    });
   } catch (err) {
     next(err);
   }
